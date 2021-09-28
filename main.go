@@ -31,8 +31,7 @@ const (
 	linkText         = `(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
 	imageFile        = `(\!)(\[(?:.*)?\])(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
 	listText         = `(^(\W{1})(\s)(.*)(?:$)?)+`
-	underlineText    = `\_{1}.*\_{1}`
-	numberedListText = `((\d+\.)(\s)(.*)(?:\n)?)+`
+	numberedListText = `(^(\d+\.)(\s)(.*)(?:$)?)+`
 	blockQuote       = `((\>{1})(\s)(.*)(?:\n)?)+`
 	inlineCode       = "(\\`{1})(.*)(\\`{1})"
 	codeBlock        = "(\\`{3}\\n)(.*)(\\n\\`{3})"

@@ -34,7 +34,7 @@ const (
 	numberedListText = `(^(\d+\.)(\s)(.*)(?:$)?)+`
 	blockQuote       = `(^(\>{1})(\s)(.*)(?:$)?)+`
 	inlineCode       = "(\\`{1})(.*)(\\`{1})"
-	codeBlock        = "(\\`{3}\\n)(.*)(\\n\\`{3})"
+	codeBlock        = "(\\`{3}\\n+)(.*)(\\n+\\`{3})"
 	horizontalLine   = `(\=|\-|\*){3}`
 	emailText        = `(\<{1})(\S+@\S+)(\>{1})`
 	boldItalicLink   = `(\*|\_)+(\[.*\])(\((http)(?:s)?(\:\/\/).*\))(\*|\_)+`

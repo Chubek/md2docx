@@ -21,12 +21,12 @@ func init() {
 }
 
 const (
-	headerOne        = `(#{1})(.*)`
-	headeTwo         = `(#{2})(.*)`
-	headerThree      = `(#{3})(.*)`
-	headerFour       = `(#{4})(.*)`
-	headerFive       = `(#{5})(.*)`
-	headerFix        = `(#{6})(.*)`
+	headerOne        = `(#{1}\s)(.*)`
+	headeTwo         = `(#{2}\s)(.*)`
+	headerThree      = `(#{3}\s)(.*)`
+	headerFour       = `(#{4}\s)(.*)`
+	headerFive       = `(#{5}\s)(.*)`
+	headerSix        = `(#{6}\s)(.*)`
 	boldItalicText   = `(\*|\_)+(\S+)(\*|\_)+`
 	linkText         = `(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
 	imageFile        = `(\!)(\[(?:.*)?\])(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
@@ -40,4 +40,5 @@ const (
 	emailText        = `(\<{1})(\S+@\S+)(\>{1})`
 	boldItalicLink   = `(\*|\_)+(\[.*\])(\((http)(?:s)?(\:\/\/).*\))(\*|\_)+`
 	qText            = `(\"|\')(\w|\W|\d)+(\"|\')`
+	tableText        = "(^((\\|)(\\w|\\d|[!\"#$%&'()*+,-.\\/:;<=>?@[\\]^_`{|}])+)+\\|$)"
 )

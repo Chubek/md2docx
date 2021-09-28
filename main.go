@@ -32,7 +32,7 @@ const (
 	imageFile        = `(\!)(\[(?:.*)?\])(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
 	listText         = `(^(\W{1})(\s)(.*)(?:$)?)+`
 	numberedListText = `(^(\d+\.)(\s)(.*)(?:$)?)+`
-	blockQuote       = `((\>{1})(\s)(.*)(?:\n)?)+`
+	blockQuote       = `(^(\>{1})(\s)(.*)(?:$)?)+`
 	inlineCode       = "(\\`{1})(.*)(\\`{1})"
 	codeBlock        = "(\\`{3}\\n)(.*)(\\n\\`{3})"
 	horizontalLine   = `(\=|\-|\*){3}`

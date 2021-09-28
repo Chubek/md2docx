@@ -30,7 +30,7 @@ const (
 	boldItalicText   = `(\*|\_)+(\S+)(\*|\_)+`
 	linkText         = `(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
 	imageFile        = `(\!)(\[(?:.*)?\])(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
-	listText         = `((\W{1})(\s)(.*)(?:\n)?)+`
+	listText         = `(^(\W{1})(\s)(.*)(?:$)?)+`
 	underlineText    = `\_{1}.*\_{1}`
 	numberedListText = `((\d+\.)(\s)(.*)(?:\n)?)+`
 	blockQuote       = `((\>{1})(\s)(.*)(?:\n)?)+`

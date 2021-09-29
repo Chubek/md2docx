@@ -50,6 +50,16 @@ const (
 	
 )
 
+func reverse(s string) string {
+    rns := []rune(s) 
+    for i, j := 0, len(rns)-1; i < j; i, j = i+1, j-1 {
+
+        rns[i], rns[j] = rns[j], rns[i]
+    }
+  
+    return string(rns)
+}
+  
 
 func addBoldText(text string, para document.Paragraph) {
 	run := para.AddRun()
@@ -89,7 +99,7 @@ func parseBold(pattern *regexp.Regexp, text string) (x int) {
 		lastTwo := text[len(text) - 2:]
 
 		if twoUAP.MatchString(firstTwo) && twoUAP.MatchString(lastTwo) {
-			if firstTwo != lastTwo {
+			if firstTwo != reverse(lastTwo) {
 				return 121
 			} else {
 				return 132
@@ -112,7 +122,7 @@ func parseItalic(pattern *regexp.Regexp, text string) (x int) {
 		lastTwo := text[len(text) - 2:]
 
 		if oneUAP.MatchString(firstTwo) && oneUAP.MatchString(lastTwo) {
-			if firstTwo != lastTwo {
+			if firstTwo != reverse(lastTwo) {
 				return 121
 			} else {
 				return 132
@@ -135,7 +145,7 @@ func parseBoldItalic(pattern *regexp.Regexp, text string) (x int) {
 		lastTwo := text[len(text) - 2:]
 
 		if threeUAP.MatchString(firstTwo) && threeUAP.MatchString(lastTwo) {
-			if firstTwo != lastTwo {
+			if firstTwo != reverse(lastTwo) {
 				return 121
 			} else {
 				return 132

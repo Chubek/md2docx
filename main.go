@@ -1,17 +1,47 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"io"
+	"path"
 	"regexp"
-
+	"net/http"
+	"strings"
 	"github.com/joho/godotenv"
 	"github.com/unidoc/unioffice/color"
 	"github.com/unidoc/unioffice/common/license"
 	"github.com/unidoc/unioffice/document"
 	"github.com/unidoc/unioffice/measurement"
 	"github.com/unidoc/unioffice/schema/soo/wml"
+	"github.com/unidoc/unioffice/common"
+
 )
+
+func DownloadFile(filepath string, url string) error {
+	err_env := godotenv.Load()
+	if err_env != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	imgSavePath := path.Join(os.Getenv(`FILES_PATH`), filepath)
+
+	out, err := os.Create(imgSavePath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	return err
+}
 
 func init() {
 	err_env := godotenv.Load()
@@ -26,14 +56,9 @@ func init() {
 }
 
 const (
-	headerOne        = `(#{1}\s)(.*)`
-	headeTwo         = `(#{2}\s)(.*)`
-	headerThree      = `(#{3}\s)(.*)`
-	headerFour       = `(#{4}\s)(.*)`
-	headerFive       = `(#{5}\s)(.*)`
-	headerSix        = `(#{6}\s)(.*)`
+	headerAll        = `(#{%d}\s)(.*)`
 	boldItalicText   = `(\*|\_)+(\S+)(\*|\_)+`
-	linkText         = `(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
+	linkText         = `(\[.*\])(\((\w{3,5})(\:\/\/).*\))`
 	imageFile        = `(\!)(\[(?:.*)?\])(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
 	listText         = `(^(\W{1})(\s)(.*)(?:$)?)+`
 	numberedListText = `(^(\d+\.)(\s)(.*)(?:$)?)+`
@@ -47,6 +72,7 @@ const (
 	threeUA	=	`(\_|\*){3}`
 	twoUA	=	`(\_|\*){2}`
 	oneUA	=	`(\_|\*){1}`
+	url 	=	`(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})`
 	
 )
 
@@ -60,6 +86,95 @@ func reverse(s string) string {
     return string(rns)
 }
   
+func addHeader(text string, para document.Paragraph, level int) {
+	run := para.AddRun()
+	style := fmt.Sprintf("Heading%d", level)
+	para.SetStyle(style)
+	text = text[2:]
+	run.AddText(text)
+}
+
+func parseHeader(pattern *regexp.Regexp, text string) (x int) {
+	if pattern.MatchString(text) {
+		return 132
+	}
+	
+	return 100
+}
+
+func parseLink(pattern *regexp.Regexp, text string) (x int) {
+	if pattern.MatchString(text) {
+		return 132
+	}
+	
+	return 100
+}
+
+func addLink(text string, para document.Paragraph) {
+	txtSplit := strings.Split(text, "](")
+	linkText := txtSplit[0][1:]
+	pattUnnTxt := regexp.MustCompile(`(\"|\')(\w|\W|\S)+(\"|\')`)
+	hrefTooltip := pattUnnTxt.FindString(txtSplit[1])
+	linkUrl := strings.Trim(pattUnnTxt.ReplaceAllString(txtSplit[1][:len(txtSplit[1]) - 1], ""), " ")
+
+	hl := para.AddHyperLink()
+	hl.SetTarget(linkUrl)
+	run := hl.AddRun()
+	run.Properties().SetStyle("Hyperlink")
+	run.AddText(linkText)
+	hl.SetToolTip(hrefTooltip)
+
+
+}
+
+func addImageLink(text string, para document.Paragraph) {
+	firstIndex := strings.Index(text, "](")
+	lastIndex := strings.LastIndex(text, "](")
+	
+	linkText = text[3:firstIndex]
+
+	imgPathAndAlt := text[firstIndex:lastIndex - 1]
+
+	pattUnnTxt := regexp.MustCompile(`(\"|\')(\w|\W|\S)+(\"|\')`)
+	imgTooltip := pattUnnTxt.FindString(imgPathAndAlt)
+
+	singleQuoteIndex := strings.Index(imgPathAndAlt, "'")
+	doubleQuoteIndex := strings.Index(imgPathAndAlt, "\"")
+
+	var quoteIndex int
+
+	if singleQuoteIndex == -1 {
+		quoteIndex = doubleQuoteIndex
+	} else {
+		quoteIndex = singleQuoteIndex
+	}
+
+	imgPathOrUrl := strings.Trim(pattUnnTxt.ReplaceAllString(imgPathAndAlt[:quoteIndex], ""), " ")
+
+	lastParanIndex := strings.LastIndex(text, ")")
+
+	linkUrl := strings.Trim(text[lastIndex:lastParanIndex], " ")
+
+	patternUrl := regexp.MustCompile(url)
+
+	var imgName string
+
+	if patternUrl.MatchString(imgPathOrUrl) {
+		imgName = imgPathOrUrl[strings.LastIndex(imgPathOrUrl, "/"):]
+
+		DownloadFile(imgName, imgPathOrUrl)
+
+	}
+
+	hl := para.AddHyperLink()
+	hl.SetTarget(linkUrl)
+	run := hl.AddRun()
+	run.Properties().SetStyle("Hyperlink")
+	run.AddText(linkText)
+	hl.SetToolTip(hrefTooltip)
+
+
+}
 
 func addBoldText(text string, para document.Paragraph) {
 	run := para.AddRun()
@@ -88,11 +203,8 @@ func addItalicItalic(text string, para document.Paragraph) {
 }
 
 func parseBold(pattern *regexp.Regexp, text string) (x int) {
-	twoUAP, err := regexp.Compile(twoUA)
+	twoUAP := regexp.MustCompile(twoUA)
 
-	if err != nil {
-		log.Fatal("Problem with compiling twoUA pattern!")
-	}
 
 	if pattern.MatchString(text) {
 		firstTwo := text[:2]

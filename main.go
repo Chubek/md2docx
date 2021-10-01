@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"regexp"
 	"strings"
+	"regexp"
+	"github.com/dlclark/regexp2"
 
 	"github.com/joho/godotenv"
 	"github.com/unidoc/unioffice/color"
@@ -73,7 +74,7 @@ const (
 	twoUA            = `(\_|\*){2}`
 	oneUA            = `(\_|\*){1}`
 	url              = `(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})`
-	tableSep		 =	`((\|)(-+))+(\|)(\n)`
+	tableSep         = `((\|)(-+))+(\|)(\n)`
 )
 
 func reverse(s string) string {
@@ -92,7 +93,7 @@ func addTable(text string, doc *document.Document) {
 	var rowList [][]string
 
 	for _, txtSplt := range textSplit {
-		rowSplit := strings.Split(txtSplt[1:len(txtSplt) - 1], "|")
+		rowSplit := strings.Split(txtSplt[1:len(txtSplt)-1], "|")
 		rowList = append(rowList, rowSplit)
 	}
 
@@ -103,11 +104,11 @@ func addTable(text string, doc *document.Document) {
 
 	rowHeader := table.AddRow()
 
-	for _, cellText := range rowList[0]{
+	for _, cellText := range rowList[0] {
 		cell := rowHeader.AddCell()
 		run := cell.AddParagraph().AddRun()
 		run.Properties().SetBold(true)
-		run.AddText(cellText)
+		ParseAndAddText(cellText, run)
 	}
 
 	for _, rowText := range rowList[1:] {
@@ -116,11 +117,9 @@ func addTable(text string, doc *document.Document) {
 		for _, cellText := range rowText {
 			cell := row.AddCell()
 			run := cell.AddParagraph().AddRun()
-			run.AddText(cellText)
+			ParseAndAddText(cellText, run)
 		}
 	}
-	
-
 
 }
 
@@ -186,7 +185,7 @@ func addEmailUrl(text string, para document.Paragraph) {
 	hl.SetToolTip(explainText)
 }
 
-func parseEmailUrl(patternUrlEmail *regexp.Regexp, text string) int {
+func parseEmailUrl(patternUrlEmail *regexp.regexp, text string) int {
 	if patternUrlEmail.MatchString(text) {
 		return 124
 	}
@@ -256,7 +255,7 @@ func addLinkHeader(text string, para document.Paragraph, level int) int {
 	return 101
 }
 
-func parseNormal(pattern *regexp.Regexp, text string) (x int) {
+func parseNormal(pattern *regexp.regexp, text string) (x int) {
 	if pattern.MatchString(text) {
 		return 132
 	}
@@ -392,7 +391,7 @@ func addItalicItalic(text string, para document.Paragraph) int {
 
 }
 
-func parseBold(pattern *regexp.Regexp, text string) (x int) {
+func parseBold(pattern *regexp.regexp, text string) (x int) {
 	twoUAP := regexp.MustCompile(twoUA)
 
 	if pattern.MatchString(text) {
@@ -411,7 +410,7 @@ func parseBold(pattern *regexp.Regexp, text string) (x int) {
 	return 100
 }
 
-func parseItalic(pattern *regexp.Regexp, text string) (x int) {
+func parseItalic(pattern *regexp.regexp, text string) (x int) {
 	oneUAP, err := regexp.Compile(oneUA)
 
 	if err != nil {
@@ -434,7 +433,7 @@ func parseItalic(pattern *regexp.Regexp, text string) (x int) {
 	return 100
 }
 
-func parseBoldItalic(pattern *regexp.Regexp, text string) (x int) {
+func parseBoldItalic(pattern *regexp.regexp, text string) (x int) {
 	threeUAP, err := regexp.Compile(threeUA)
 
 	if err != nil {

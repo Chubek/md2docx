@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"strings"
 	"regexp"
-	"github.com/dlclark/regexp2"
+	"strings"
+
+	"github.com/unidoc/unioffice/schema/soo/wml"
 
 	"github.com/joho/godotenv"
 	"github.com/unidoc/unioffice/color"

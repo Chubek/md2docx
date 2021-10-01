@@ -11,7 +11,7 @@ import (
 
 
 
-func AddTable(text string, doc *document.Document) {
+func AddTable(text string, doc *document.Document) int {
 	tableSepPatt := regexp.MustCompile(patterns.TableSep)
 	textSplit := tableSepPatt.Split(text, -1)
 	var rowList [][]string
@@ -30,9 +30,8 @@ func AddTable(text string, doc *document.Document) {
 
 	for _, cellText := range rowList[0] {
 		cell := rowHeader.AddCell()
-		run := cell.AddParagraph().AddRun()
-		run.Properties().SetBold(true)
-		ParseAndAddText(cellText, run)
+		paraCell := cell.AddParagraph()
+		ParseAndAddText(cellText, paraCell, true)
 	}
 
 	for _, rowText := range rowList[1:] {
@@ -40,7 +39,9 @@ func AddTable(text string, doc *document.Document) {
 
 		for _, cellText := range rowText {
 			cell := row.AddCell()
-			run := cell.AddParagraph().AddRun()
-			ParseAndAddText(cellText, run)
+			paraCell := cell.AddParagraph()
+			ParseAndAddText(cellText, paraCell, false)
 		}
 	}
+
+	return 101

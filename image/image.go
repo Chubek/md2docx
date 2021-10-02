@@ -23,7 +23,7 @@ import (
 	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func addImageLink(text string, para document.Paragraph, doc *document.Document, _ int) int {
+func AddImage(text string, para document.Paragraph, doc *document.Document, _ int) int {
 	firstIndex := strings.Index(text, "](")
 	lastIndex := strings.LastIndex(text, ")")
 

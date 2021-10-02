@@ -6,7 +6,7 @@ import (
 	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func AddBlockQuote(text string, para document.Paragraph, doc *document.Document) {
+func AddBlockQuote(text string, para document.Paragraph, doc *document.Document, _ int) int {
 	style := doc.Styles
 	customStyle := style.AddStyle("CustomStyle1", wml.ST_StyleTypeParagraph, false)
 	customStyle.SetName("BQ Style")
@@ -20,9 +20,11 @@ func AddBlockQuote(text string, para document.Paragraph, doc *document.Document)
 	run := para.AddRun()
 	run.Properties().SetFontFamily("Trebuchet MS")
 	ParseAndAddText(text, para, false)
+
+	return 101
 }
 
-func AddHorizontalLine(para document.Paragraph) int {
+func AddHorizontalLine(_ string, para document.Paragraph, _ *document.Document, _ int) int {
 	run := para.AddRun()
 	run.AddText("---\n")
 

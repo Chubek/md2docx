@@ -6,7 +6,7 @@ import (
 	"github.com/unidoc/unioffice/document"
 )
 
-func AddList(text string, para document.Paragraph) int {
+func AddList(text string, para document.Paragraph, _ *document.Document, _ int) (x int) {
 	lstSplt := strings.Split(text, "\n")
 
 	for _, line := range lstSplt {

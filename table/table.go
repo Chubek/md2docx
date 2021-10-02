@@ -11,7 +11,7 @@ import (
 
 
 
-func AddTable(text string, doc *document.Document) int {
+func AddTable(text string, _ document.Paragraph, doc *document.Document, _ int) int {
 	tableSepPatt := regexp.MustCompile(patterns.TableSep)
 	textSplit := tableSepPatt.Split(text, -1)
 	var rowList [][]string

@@ -4,7 +4,7 @@ import (
 	"github.com/unidoc/unioffice/document"
 )
 
-func AddBoldText(text string, para document.Paragraph, _ *document.Document, _ int) int {
+func ParseBoldText(text string, para document.Paragraph, _ *document.Document, _ int) int {
 	run := para.AddRun()
 	run.Properties().SetBold(true)
 	text = text[2 : len(text)-2]
@@ -14,7 +14,7 @@ func AddBoldText(text string, para document.Paragraph, _ *document.Document, _ i
 
 }
 
-func AddItalic(text string, para document.Paragraph, _ *document.Document, _ int) int {
+func ParseItalic(text string, para document.Paragraph, _ *document.Document, _ int) int {
 	run := para.AddRun()
 	run.Properties().SetItalic(true)
 	text = text[2 : len(text)-2]
@@ -24,7 +24,7 @@ func AddItalic(text string, para document.Paragraph, _ *document.Document, _ int
 
 }
 
-func AddBoldItalic(text string, para document.Paragraph, _ *document.Document, _ int) int {
+func ParseBoldItalic(text string, para document.Paragraph, _ *document.Document, _ int) int {
 	run := para.AddRun()
 	run.Properties().SetItalic(true)
 	run.Properties().SetBold(true)

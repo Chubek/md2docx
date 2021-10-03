@@ -13,7 +13,7 @@ import (
 	"github.com/unidoc/unioffice/document"
 )
 
-func AddEmailUrl(text string, para document.Paragraph, doc *document.Document, _ int)  int {
+func ParseEmailUrl(text string, para document.Paragraph, doc *document.Document, _ int) int {
 	firstIndex := strings.Index(text, "<")
 	lastIndex := strings.Index(text, ">")
 	text = text[firstIndex : len(text)-lastIndex]
@@ -49,9 +49,9 @@ func AddEmailUrl(text string, para document.Paragraph, doc *document.Document, _
 	return 101
 }
 
-func AddLink(text string, para document.Paragraph, doc *document.Document, _ int) int {
+func ParseLink(text string, para document.Paragraph, doc *document.Document, _ int) int {
 	if strings.Count(text, "](") >= 1 {
-		return AddImageLink(text, para, doc, 0)
+		return ParseImageLink(text, para, doc, 0)
 	}
 
 	txtSplit := strings.Split(text, "](")
@@ -71,7 +71,7 @@ func AddLink(text string, para document.Paragraph, doc *document.Document, _ int
 
 }
 
-func AddImageLink(text string, para document.Paragraph, doc *document.Document, _ int) int {
+func ParseImageLink(text string, para document.Paragraph, doc *document.Document, _ int) int {
 	firstIndex := strings.Index(text, "](")
 	lastIndex := strings.LastIndex(text, "](")
 
@@ -130,9 +130,9 @@ func AddImageLink(text string, para document.Paragraph, doc *document.Document, 
 		log.Fatalf("unable to create image: %s", err)
 	}
 
-	imgRef, err := doc.AddImage(img)
+	imgRef, err := doc.ParseImage(img)
 	if err != nil {
-		log.Fatalf("unable to add image to document: %s", err)
+		log.Fatalf("unable to Parse image to document: %s", err)
 	}
 
 	hl := para.AddHyperLink()

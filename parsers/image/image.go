@@ -2,36 +2,28 @@ package image
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-	"os"
-	"path"
+	"md2docx/patterns"
+	"md2docx/util"
 	"regexp"
 	"strings"
-	"md2docx/util"
-	"md2docx/patterns"
 
 	"github.com/unidoc/unioffice/schema/soo/wml"
 
-	"github.com/joho/godotenv"
-	"github.com/unidoc/unioffice/color"
 	"github.com/unidoc/unioffice/common"
-	"github.com/unidoc/unioffice/common/license"
 	"github.com/unidoc/unioffice/document"
 	"github.com/unidoc/unioffice/measurement"
-	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func AddImage(text string, para document.Paragraph, doc *document.Document, _ int) int {
+func ParseImage(text string, para document.Paragraph, doc *document.Document, _ int) int {
 	firstIndex := strings.Index(text, "](")
 	lastIndex := strings.LastIndex(text, ")")
 
 	imgText := text[2:firstIndex]
 
-	imgPathAndAlt := text[firstIndex : lastIndex - 1]
+	imgPathAndAlt := text[firstIndex : lastIndex-1]
 
-	pattUnnTxt := regexp.MustCompile(patterns.UnTex)
+	pattUnnTxt := regexp.MustCompile(patterns.UnText)
 	imgTooltip := pattUnnTxt.FindString(imgPathAndAlt)
 
 	singleQuoteIndex := strings.Index(imgPathAndAlt, "'")
@@ -46,7 +38,6 @@ func AddImage(text string, para document.Paragraph, doc *document.Document, _ in
 	}
 
 	imgPathOrUrl := strings.Trim(pattUnnTxt.ReplaceAllString(imgPathAndAlt[:quoteIndex], ""), " ")
-
 
 	patternUrl := regexp.MustCompile(patterns.Url)
 
@@ -79,14 +70,14 @@ func AddImage(text string, para document.Paragraph, doc *document.Document, _ in
 		log.Fatalf("unable to create image: %s", err)
 	}
 
-	imgRef, err := doc.AddImage(img)
+	imgRef, err := doc.ParseImage(img)
 	if err != nil {
-		log.Fatalf("unable to add image to document: %s", err)
+		log.Fatalf("unable to Parse image to document: %s", err)
 	}
-	
+
 	anchored, err := para.AddRun().AddDrawingAnchored(imgRef)
 	if err != nil {
-		log.Fatalf("unable to add anchored image: %s", err)
+		log.Fatalf("unable to Parse anchored image: %s", err)
 	}
 	anchored.SetName(imgHint)
 	anchored.SetSize(2*measurement.Inch, 2*measurement.Inch)

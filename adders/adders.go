@@ -13,7 +13,7 @@ import (
 	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func AddBlockQuote(texts []string, doc *document.Document) int {
+func AddBlockQuote(texts []string, doc *document.Document, para document.Paragraph) int {
 	style := doc.Styles
 	customStyle := style.AddStyle("CustomStyle1", wml.ST_StyleTypeParagraph, false)
 	customStyle.SetName("BQ Style")
@@ -21,8 +21,6 @@ func AddBlockQuote(texts []string, doc *document.Document) int {
 	customStyle.ParagraphProperties().SetAlignment(wml.ST_JcBoth)
 	customStyle.ParagraphProperties().SetFirstLineIndent(8)
 	customStyle.ParagraphProperties().SetLineSpacing(4*measurement.Point, wml.ST_LineSpacingRuleAuto)
-
-	para := doc.AddParagraph()
 
 	para.SetStyle("BQ Style")
 
@@ -36,8 +34,7 @@ func AddBlockQuote(texts []string, doc *document.Document) int {
 	return 101
 }
 
-func AddHorizLine(texts []string, doc *document.Document) int {
-	para := doc.AddParagraph()
+func AddHorizLine(texts []string, para document.Paragraph) int {
 	run := para.AddRun()
 	run.AddText(texts[0])
 
@@ -63,9 +60,7 @@ func AddTable(texts [][]string, doc *document.Document) int {
 	return 101
 }
 
-func AddList(texts []string, doc *document.Document) int {
-	para := doc.AddParagraph()
-
+func AddList(texts []string, para document.Paragraph) int {
 	for _, txt := range texts {
 		run := para.AddRun()
 		run.AddText(txt)
@@ -75,7 +70,7 @@ func AddList(texts []string, doc *document.Document) int {
 
 }
 
-func ParseImage(text []string, doc *document.Document) int {
+func ParseImage(text []string, doc *document.Document, para document.Paragraph) int {
 	imgPath := text[0]
 	imgHint := text[1]
 
@@ -88,8 +83,6 @@ func ParseImage(text []string, doc *document.Document) int {
 	if err != nil {
 		log.Fatalf("unable to Parse image to document: %s", err)
 	}
-
-	para := doc.AddParagraph()
 
 	anchored, err := para.AddRun().AddDrawingAnchored(imgRef)
 	if err != nil {
@@ -106,12 +99,10 @@ func ParseImage(text []string, doc *document.Document) int {
 
 }
 
-func AddEmailUrl(text []string, doc *document.Document) int {
+func AddEmailUrl(text []string, doc *document.Document, para document.Paragraph) int {
 	emailOrUrl := text[0]
 	protocol := text[1]
 	explainText := text[2]
-
-	para := doc.AddParagraph()
 
 	hl := para.AddHyperLink()
 	hl.SetTarget(fmt.Sprintf("%s:%s", protocol, emailOrUrl))
@@ -124,7 +115,7 @@ func AddEmailUrl(text []string, doc *document.Document) int {
 	return 101
 }
 
-func AddLinkImage(text []string, doc *document.Document) int {
+func AddLinkImage(text []string, doc *document.Document, para document.Paragraph) int {
 	imgPath := text[1]
 	toolTip := text[2]
 	linkUrl := text[3]
@@ -139,8 +130,6 @@ func AddLinkImage(text []string, doc *document.Document) int {
 		log.Fatalf("unable to Parse image to document: %s", err)
 	}
 
-	para := doc.AddParagraph()
-
 	hl := para.AddHyperLink()
 	hl.SetTarget(linkUrl)
 	run := hl.AddRun()
@@ -151,16 +140,14 @@ func AddLinkImage(text []string, doc *document.Document) int {
 	return 101
 }
 
-func AddLink(text []string, doc *document.Document) int {
+func AddLink(text []string, doc *document.Document, para document.Paragraph) int {
 	if text[0] == "ImageLink" {
-		return AddLinkImage(text, doc)
+		return AddLinkImage(text, doc, para)
 	}
 
 	linkText := text[1]
 	hrefTooltip := text[2]
 	linkUrl := text[3]
-
-	para := doc.AddParagraph()
 
 	hl := para.AddHyperLink()
 	hl.SetTarget(linkUrl)
@@ -173,7 +160,7 @@ func AddLink(text []string, doc *document.Document) int {
 
 }
 
-func AddHeader(texts []string, doc *document.Document) int {
+func AddHeader(texts []string, para document.Paragraph) int {
 	level := texts[0]
 	style := fmt.Sprintf("Heading%s", level)
 
@@ -188,8 +175,6 @@ func AddHeader(texts []string, doc *document.Document) int {
 		hrefTooltip := pattUnnTxt.FindString(txtSplit[1])
 		linkUrl := strings.Trim(pattUnnTxt.ReplaceAllString(txtSplit[1][:len(txtSplit[1])-1], ""), " ")
 
-		para := doc.AddParagraph()
-
 		hl := para.AddHyperLink()
 		para.SetStyle(style)
 		hl.SetTarget(linkUrl)
@@ -201,7 +186,6 @@ func AddHeader(texts []string, doc *document.Document) int {
 		return 101
 	}
 
-	para := doc.AddParagraph()
 	para.SetStyle(style)
 	run := para.AddRun()
 	run.AddText(text)
@@ -251,7 +235,7 @@ func AddBoldItalic(text []string, run document.Run) int {
 	return 101
 }
 
-func AddCodeBlock(texts []string, doc *document.Document) int {
+func AddCodeBlock(texts []string, doc *document.Document, para document.Paragraph) int {
 	text := texts[0]
 
 	style := doc.Styles
@@ -261,8 +245,6 @@ func AddCodeBlock(texts []string, doc *document.Document) int {
 	customStyle.ParagraphProperties().SetAlignment(wml.ST_JcBoth)
 	customStyle.ParagraphProperties().SetFirstLineIndent(0)
 	customStyle.ParagraphProperties().SetLineSpacing(2*measurement.Point, wml.ST_LineSpacingRuleAuto)
-
-	para := doc.AddParagraph()
 
 	run := para.AddRun()
 

@@ -100,43 +100,46 @@ func matchHeader(pattern *regexp.Regexp, text string) int {
 }
 
 var (
-	headerOnematchr   = matcherType{1, fmt.Sprintf(patterns.HeaderAll, 1), matchHeader}
-	headerTwomatchr   = matcherType{2, fmt.Sprintf(patterns.HeaderAll, 2), matchHeader}
-	headerThreematchr = matcherType{3, fmt.Sprintf(patterns.HeaderAll, 3), matchHeader}
-	headerFourmatchr  = matcherType{4, fmt.Sprintf(patterns.HeaderAll, 4), matchHeader}
-	headerFivematchr  = matcherType{5, fmt.Sprintf(patterns.HeaderAll, 5), matchHeader}
-	headerSixmatchr   = matcherType{6, fmt.Sprintf(patterns.HeaderAll, 6), matchHeader}
-	boldmatchr        = matcherType{7, patterns.BoldItalicText, matchBold}
-	italicmatchr      = matcherType{8, patterns.BoldItalicText, matchItalic}
-	boldItalicmatchr  = matcherType{9, patterns.BoldItalicText, matchBoldItalic}
-	linkmatchr        = matcherType{10, patterns.LinkText, matchNormal}
-	listmatchr        = matcherType{11, patterns.ListText, matchNormal}
-	emailUrlmatchr    = matcherType{12, patterns.ListText, matchNormal}
-	imagematchr       = matcherType{13, patterns.ImageFile, matchNormal}
-	bQmatchr          = matcherType{14, patterns.BlockQuote, matchNormal}
-	horizLinematchr   = matcherType{15, patterns.LinkText, matchNormal}
-	codeBlockmatchr   = matcherType{16, patterns.CodeBlock, matchNormal}
-	inlineCodematchr  = matcherType{17, patterns.InlineCode, matchNormal}
+	headerOneMatcher   = matcherType{1, fmt.Sprintf(patterns.HeaderAll, 1), matchHeader}
+	headerTwoMatcher   = matcherType{2, fmt.Sprintf(patterns.HeaderAll, 2), matchHeader}
+	headerThreeMatcher = matcherType{3, fmt.Sprintf(patterns.HeaderAll, 3), matchHeader}
+	headerFourMatcher  = matcherType{4, fmt.Sprintf(patterns.HeaderAll, 4), matchHeader}
+	headerFiveMatcher  = matcherType{5, fmt.Sprintf(patterns.HeaderAll, 5), matchHeader}
+	headerSixMatcher   = matcherType{6, fmt.Sprintf(patterns.HeaderAll, 6), matchHeader}
+	boldMatcher        = matcherType{7, patterns.BoldItalicText, matchBold}
+	italicMatcher      = matcherType{8, patterns.BoldItalicText, matchItalic}
+	boldItalicMatcher  = matcherType{9, patterns.BoldItalicText, matchBoldItalic}
+	linkMatcher        = matcherType{10, patterns.LinkText, matchNormal}
+	listMatcher        = matcherType{11, patterns.ListText, matchNormal}
+	emailUrlMatcher    = matcherType{12, patterns.ListText, matchNormal}
+	imageMatcher       = matcherType{13, patterns.ImageFile, matchNormal}
+	bQMatcher          = matcherType{14, patterns.BlockQuote, matchNormal}
+	horizLineMatcher   = matcherType{15, patterns.LinkText, matchNormal}
+	codeBlockMatcher   = matcherType{16, patterns.CodeBlock, matchNormal}
+	inlineCodeMatcher  = matcherType{17, patterns.InlineCode, matchNormal}
+	tableMatcher  	   = matcherType{18, patterns.TableText, matchNormal}
+
 )
 
 func MatchAll(text string) int {
-	allTypes := []matcherType{headerOnematchr,
-		headerTwomatchr,
-		headerThreematchr,
-		headerFourmatchr,
-		headerFivematchr,
-		headerSixmatchr,
-		boldItalicmatchr,
-		italicmatchr,
-		boldmatchr,
-		linkmatchr,
-		listmatchr,
-		emailUrlmatchr,
-		imagematchr,
-		bQmatchr,
-		horizLinematchr,
-		codeBlockmatchr,
-		inlineCodematchr}
+	allTypes := []matcherType{headerOneMatcher,
+		headerTwoMatcher,
+		headerThreeMatcher,
+		headerFourMatcher,
+		headerFiveMatcher,
+		headerSixMatcher,
+		boldItalicMatcher,
+		italicMatcher,
+		boldMatcher,
+		linkMatcher,
+		listMatcher,
+		emailUrlMatcher,
+		imageMatcher,
+		bQMatcher,
+		horizLineMatcher,
+		codeBlockMatcher,
+		inlineCodeMatcher,
+		tableMatcher}
 
 	for _, pT := range allTypes {
 		if pTRes := pT.MatcherPattern(text); pTRes != 100 {

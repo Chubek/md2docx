@@ -1,12 +1,15 @@
 package adders
 
 import (
+	"fmt"
+	"log"
+
+	"github.com/unidoc/unioffice/color"
+	"github.com/unidoc/unioffice/common"
 	"github.com/unidoc/unioffice/document"
 	"github.com/unidoc/unioffice/measurement"
 	"github.com/unidoc/unioffice/schema/soo/wml"
-	"github.com/unidoc/unioffice/color"
 )
-
 
 func AddBlockQuote(texts []string, doc *document.Document) int {
 	style := doc.Styles
@@ -16,17 +19,25 @@ func AddBlockQuote(texts []string, doc *document.Document) int {
 	customStyle.ParagraphProperties().SetAlignment(wml.ST_JcBoth)
 	customStyle.ParagraphProperties().SetFirstLineIndent(8)
 	customStyle.ParagraphProperties().SetLineSpacing(4*measurement.Point, wml.ST_LineSpacingRuleAuto)
-	
+
 	para := doc.AddParagraph()
 
 	para.SetStyle("BQ Style")
 
 	run := para.AddRun()
 	run.Properties().SetFontFamily("Trebuchet MS")
-	
+
 	for _, txt := range texts {
 		run.AddText(txt)
 	}
+
+	return 101
+}
+
+func AddHorizLine(texts []string, doc *document.Document) int {
+	para := doc.AddParagraph()
+	run := para.AddRun()
+	run.AddText(texts[0])
 
 	return 101
 }
@@ -37,7 +48,7 @@ func AddTable(texts [][]string, doc *document.Document) int {
 	borders := table.Properties().Borders()
 	borders.SetAll(wml.ST_BorderSingle, color.Auto, 2*measurement.Point)
 
-	for _, rowText := range  texts{
+	for _, rowText := range texts {
 		row := table.AddRow()
 
 		for _, cellText := range rowText {
@@ -50,7 +61,6 @@ func AddTable(texts [][]string, doc *document.Document) int {
 	return 101
 }
 
-
 func AddList(texts []string, doc *document.Document) int {
 	para := doc.AddParagraph()
 
@@ -58,6 +68,104 @@ func AddList(texts []string, doc *document.Document) int {
 		run := para.AddRun()
 		run.AddText(txt)
 	}
+
+	return 101
+
+}
+
+func ParseImage(text []string, doc *document.Document) int {
+	imgPath := text[0]
+	imgHint := text[1]
+
+	img, err := common.ImageFromFile(imgPath)
+	if err != nil {
+		log.Fatalf("unable to create image: %s", err)
+	}
+
+	imgRef, err := doc.AddImage(img)
+	if err != nil {
+		log.Fatalf("unable to Parse image to document: %s", err)
+	}
+
+	para := doc.AddParagraph()
+
+	anchored, err := para.AddRun().AddDrawingAnchored(imgRef)
+	if err != nil {
+		log.Fatalf("unable to Parse anchored image: %s", err)
+	}
+	anchored.SetName(imgHint)
+	anchored.SetSize(2*measurement.Inch, 2*measurement.Inch)
+	anchored.SetOrigin(wml.WdST_RelFromHPage, wml.WdST_RelFromVTopMargin)
+	anchored.SetHAlignment(wml.WdST_AlignHCenter)
+	anchored.SetYOffset(3 * measurement.Inch)
+	anchored.SetTextWrapSquare(wml.WdST_WrapTextBothSides)
+
+	return 101
+
+}
+
+func AddEmailUrl(text []string, doc *document.Document) int {
+	emailOrUrl := text[0]
+	protocol := text[1]
+	explainText := text[2]
+
+	para := doc.AddParagraph()
+
+	hl := para.AddHyperLink()
+	hl.SetTarget(fmt.Sprintf("%s:%s", protocol, emailOrUrl))
+	run := hl.AddRun()
+	style := "Hyper Link"
+	run.Properties().SetStyle(style)
+	run.AddText(fmt.Sprintf("%s%s", emailOrUrl, explainText))
+	hl.SetToolTip(explainText)
+
+	return 101
+}
+
+func AddLinkImage(text []string, doc *document.Document) int {
+	imgPath := text[1]
+	toolTip := text[2]
+	linkUrl := text[3]
+
+	img, err := common.ImageFromFile(imgPath)
+	if err != nil {
+		log.Fatalf("unable to create image: %s", err)
+	}
+
+	imgRef, err := doc.AddImage(img)
+	if err != nil {
+		log.Fatalf("unable to Parse image to document: %s", err)
+	}
+
+	para := doc.AddParagraph()
+
+	hl := para.AddHyperLink()
+	hl.SetTarget(linkUrl)
+	run := hl.AddRun()
+	run.Properties().SetStyle("Hyperlink")
+	run.AddDrawingAnchored(imgRef)
+	hl.SetToolTip(toolTip)
+
+	return 101
+}
+
+func AddLink(text []string, doc *document.Document) int {
+	if text[0] == "ImageLink" {
+		return AddLinkImage(text, doc)
+	}
+
+	linkText := text[1]
+	hrefTooltip := text[2]
+	linkUrl := text[3]
+
+	para := doc.AddParagraph()
+
+	hl := para.AddHyperLink()
+	hl.SetTarget(linkUrl)
+	run := hl.AddRun()
+	run.Properties().SetStyle("Hyperlink")
+	run.AddText(linkText)
+	hl.SetToolTip(hrefTooltip)
 
 	return 101
 

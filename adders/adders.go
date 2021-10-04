@@ -13,7 +13,7 @@ import (
 	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func AddBlockQuote(texts []string, doc *document.Document, para document.Paragraph) int {
+func AddBlockQuote(doc *document.Document, para document.Paragraph) int {
 	style := doc.Styles
 	customStyle := style.AddStyle("CustomStyle1", wml.ST_StyleTypeParagraph, false)
 	customStyle.SetName("BQ Style")
@@ -26,10 +26,6 @@ func AddBlockQuote(texts []string, doc *document.Document, para document.Paragra
 
 	run := para.AddRun()
 	run.Properties().SetFontFamily("Trebuchet MS")
-
-	for _, txt := range texts {
-		run.AddText(txt)
-	}
 
 	return 101
 }

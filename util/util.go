@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"path"
+	"io/ioutil"
 	"github.com/joho/godotenv"
 
 )
@@ -22,6 +24,17 @@ func DownloadFile(filepath string, url string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        log.Fatal(err)
+    }	
+	
+	cType := http.DetectContentType(bodyBytes)
+
+	if strings.Split(cType, "/")[0] != "image" {
+		log.Fatal("Image " + filepath + " is not an image, but is cited as one!")
+	}
 
 	imgSavePath := path.Join(os.Getenv(`FILES_PATH`), filepath)
 

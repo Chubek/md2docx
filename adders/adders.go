@@ -3,6 +3,8 @@ package adders
 import (
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 
 	"github.com/unidoc/unioffice/color"
 	"github.com/unidoc/unioffice/common"
@@ -166,6 +168,109 @@ func AddLink(text []string, doc *document.Document) int {
 	run.Properties().SetStyle("Hyperlink")
 	run.AddText(linkText)
 	hl.SetToolTip(hrefTooltip)
+
+	return 101
+
+}
+
+func AddHeader(texts []string, doc *document.Document) int {
+	level := texts[0]
+	style := fmt.Sprintf("Heading%s", level)
+
+	text := texts[1][2:]
+
+	urlPattern := regexp.MustCompile(`(\[.*\])(\((\w{3,5})(\:\/\/).*\))`)
+
+	if urlPattern.MatchString(text) {
+		txtSplit := strings.Split(text, "](")
+		linkText := txtSplit[0][1:]
+		pattUnnTxt := regexp.MustCompile(`(\"|\')(\w|\W|\S)+(\"|\')`)
+		hrefTooltip := pattUnnTxt.FindString(txtSplit[1])
+		linkUrl := strings.Trim(pattUnnTxt.ReplaceAllString(txtSplit[1][:len(txtSplit[1])-1], ""), " ")
+
+		para := doc.AddParagraph()
+
+		hl := para.AddHyperLink()
+		para.SetStyle(style)
+		hl.SetTarget(linkUrl)
+		run := hl.AddRun()
+		run.Properties().SetStyle("Hyperlink")
+		run.AddText(linkText)
+		hl.SetToolTip(hrefTooltip)
+
+		return 101
+	}
+
+	para := doc.AddParagraph()
+	para.SetStyle(style)
+	run := para.AddRun()
+	run.AddText(text)
+
+	return 101
+}
+
+func AddInlineCode(text []string, run document.Run) int {
+	run.Properties().SetFontFamily("Courier New")
+	run.Properties().SetColor(color.BlueViolet)
+
+	for _, txt := range text {
+		run.AddText(txt)
+	}
+
+	return 101
+}
+
+func AddBold(text []string, run document.Run) int {
+	run.Properties().SetBold(true)
+
+	for _, txt := range text {
+		run.AddText(txt)
+	}
+
+	return 101
+}
+
+func AddItalic(text []string, run document.Run) int {
+	run.Properties().SetItalic(true)
+
+	for _, txt := range text {
+		run.AddText(txt)
+	}
+
+	return 101
+}
+
+func AddBoldItalic(text []string, run document.Run) int {
+	run.Properties().SetBold(true)
+	run.Properties().SetItalic(true)
+
+	for _, txt := range text {
+		run.AddText(txt)
+	}
+
+	return 101
+}
+
+func AddCodeBlock(texts []string, doc *document.Document) int {
+	text := texts[0]
+
+	style := doc.Styles
+	customStyle := style.AddStyle("CustomStyle1", wml.ST_StyleTypeParagraph, false)
+	customStyle.SetName("Listing Style")
+	customStyle.ParagraphProperties().SetSpacing(measurement.Inch*1, measurement.Inch*1)
+	customStyle.ParagraphProperties().SetAlignment(wml.ST_JcBoth)
+	customStyle.ParagraphProperties().SetFirstLineIndent(0)
+	customStyle.ParagraphProperties().SetLineSpacing(2*measurement.Point, wml.ST_LineSpacingRuleAuto)
+
+	para := doc.AddParagraph()
+
+	run := para.AddRun()
+
+	run.Properties().SetStyle("Listing Style")
+	run.Properties().SetFontFamily("Courier New")
+	run.Properties().SetKerning(2)
+	run.Properties().SetColor(color.Blue)
+	run.AddText(text)
 
 	return 101
 

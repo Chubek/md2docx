@@ -7,8 +7,9 @@ import (
 	"md2docx/patterns"
 	"md2docx/util"
 	"regexp"
-	"github.com/dlclark/regexp2"
 	"strings"
+
+	"github.com/dlclark/regexp2"
 )
 
 func ParseBlockQuote(text string, _ int) []string {
@@ -118,7 +119,6 @@ func ParseImage(text string) []string {
 	return []string{imgPath, imgHint}
 }
 
-
 func ParseEmailUrl(text string) []string {
 	if match.MatchAll(text) != 12 {
 		return []string{}
@@ -152,7 +152,7 @@ func ParseEmailUrl(text string) []string {
 
 }
 
-func ParseImageLink(text string) []string{
+func ParseImageLink(text string) []string {
 	firstIndex := strings.Index(text, "](")
 	lastIndex := strings.LastIndex(text, "](")
 
@@ -226,4 +226,126 @@ func ParseLink(text string) []string {
 	linkUrl := strings.Trim(pattUnnTxt.ReplaceAllString(txtSplit[1][:len(txtSplit[1])-1], ""), " ")
 
 	return []string{"Normalink", linkText, hrefTooltip, linkUrl}
+}
+
+func ParseHeaderOne(text string) []string {
+	if match.MatchAll(text) == 1 {
+		return []string{"1", text}
+	}
+
+	return []string{}
+}
+
+func ParseHeaderTwo(text string) []string {
+	if match.MatchAll(text) == 2 {
+		return []string{"2", text}
+	}
+
+	return []string{}
+}
+
+func ParseHeaderThree(text string) []string {
+	if match.MatchAll(text) == 3 {
+		return []string{"3", text}
+	}
+
+	return []string{}
+}
+
+func ParseHeaderFour(text string) []string {
+	if match.MatchAll(text) == 4 {
+		return []string{"4", text}
+	}
+
+	return []string{}
+}
+
+func ParseHeaderFive(text string) []string {
+	if match.MatchAll(text) == 5 {
+		return []string{"5", text}
+	}
+
+	return []string{}
+}
+
+func ParseHeaderSix(text string) []string {
+	if match.MatchAll(text) == 6 {
+		return []string{"6", text}
+	}
+
+	return []string{}
+}
+
+func ParseCodeBlock(text string) []string {
+	if match.MatchAll(text) == 16 {
+		return []string{text[4 : len(text)-4]}
+	}
+
+	return []string{}
+}
+
+func ParseInlineCode(text string) []string {
+	if match.MatchAll(text) == 17 {
+		pattIC := regexp.MustCompile("(\\`{1})(.*)(\\`{1})")
+
+		inlines := pattIC.FindAllString(text, -1)
+
+		return inlines
+	}
+
+	return []string{}
+}
+
+func ParseBold(text string) []string {
+	if match.MatchAll(text) == 7 {
+		pattBold := regexp.MustCompile(`(\_|\*){2}(\w|\W|\d)+(\_|\*){2}`)
+
+		bolds := pattBold.FindAllString(text, -1)
+
+		boldsFin := make([]string, len(bolds))
+
+		for i, bB := range bolds {
+			boldsFin[i] = bB[2 : len(bB)-2]
+		}
+
+		return boldsFin
+	}
+
+	return []string{}
+}
+
+func ParseItalic(text string) []string {
+	if match.MatchAll(text) == 8 {
+		pattItalic := regexp.MustCompile(`(\_|\*){1}(\w|\W|\d)+(\_|\*){1}`)
+
+		italics := pattItalic.FindAllString(text, -1)
+
+		italicsFin := make([]string, len(italics))
+
+		for i, bB := range italics {
+			italicsFin[i] = bB[1 : len(bB)-1]
+		}
+
+		return italicsFin
+	}
+
+	return []string{}
+}
+
+func ParseBoldItalic(text string) []string {
+	if match.MatchAll(text) == 8 {
+		pattBoldItalic := regexp.MustCompile(`(\_|\*){3}(\w|\W|\d)+(\_|\*){3}`)
+
+		boldItalics := pattBoldItalic.FindAllString(text, -1)
+
+		boldItalicsFin := make([]string, len(boldItalics))
+
+		for i, bB := range boldItalics {
+			boldItalicsFin[i] = bB[3 : len(bB)-3]
+		}
+
+		return boldItalicsFin
+	}
+
+	return []string{}
 }

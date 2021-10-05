@@ -8,6 +8,7 @@ import (
 	"strings"
 	"path"
 	"io/ioutil"
+	"fmt"
 	"github.com/joho/godotenv"
 
 )
@@ -62,3 +63,12 @@ func IsEmpty(arr []string) bool {
 	return len(arr) > 0
 }
 
+func SavePathParser(savepath string) string {
+	finSavePath := savepath
+
+	if savePathSplit := strings.Split(savepath, "."); savePathSplit[len(savePathSplit) - 1] != "docx" {
+		finSavePath = fmt.Sprintf("%s.docx", savepath)
+	}
+
+	return finSavePath
+}

@@ -12,8 +12,6 @@ import (
 	"github.com/dlclark/regexp2"
 )
 
-
-
 func ParseBlockQuote(text string) []string {
 	ret := make([]string, 1)
 
@@ -44,8 +42,20 @@ func ParseTable(text string) [][]string {
 		return rowList
 	}
 
-	for _, txtSplt := range textSplit {
+	var firstRowLength int
+
+	for i, txtSplt := range textSplit {
 		rowSplit := strings.Split(txtSplt[1:len(txtSplt)-1], "|")
+
+		if i == 0 {
+			firstRowLength = len(rowSplit)
+		}
+		
+
+		if len(rowSplit) != firstRowLength {
+			log.Fatal("Table row length did not match with header length!")
+		}
+
 		rowList = append(rowList, rowSplit)
 	}
 
@@ -230,49 +240,9 @@ func ParseLink(text string) []string {
 	return []string{"Normalink", linkText, hrefTooltip, linkUrl}
 }
 
-func ParseHeaderOne(text string) []string {
-	if match.MatchAll(text) == 1 {
-		return []string{"1", text}
-	}
-
-	return []string{}
-}
-
-func ParseHeaderTwo(text string) []string {
-	if match.MatchAll(text) == 2 {
-		return []string{"2", text}
-	}
-
-	return []string{}
-}
-
-func ParseHeaderThree(text string) []string {
-	if match.MatchAll(text) == 3 {
-		return []string{"3", text}
-	}
-
-	return []string{}
-}
-
-func ParseHeaderFour(text string) []string {
-	if match.MatchAll(text) == 4 {
-		return []string{"4", text}
-	}
-
-	return []string{}
-}
-
-func ParseHeaderFive(text string) []string {
-	if match.MatchAll(text) == 5 {
-		return []string{"5", text}
-	}
-
-	return []string{}
-}
-
-func ParseHeaderSix(text string) []string {
-	if match.MatchAll(text) == 6 {
-		return []string{"6", text}
+func ParseHeader(text string) []string {
+	if matched := match.MatchAll(text); matched < 7 {
+		return []string{fmt.Sprintf("%d", matched), text}
 	}
 
 	return []string{}
@@ -352,3 +322,11 @@ func ParseBoldItalic(text string) []string {
 	return []string{}
 }
 
+func ParsePlain(text string) []string {
+	if match.MatchAll(text) == -1 {
+		return []string{text}
+	}
+
+	return []string{}
+
+}

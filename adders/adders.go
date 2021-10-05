@@ -76,7 +76,7 @@ func (adderContainer AdderContainer) AddList(normalTexts []string) int {
 
 }
 
-func (adderContainer AdderContainer) ParseImage(normalTexts []string) int {
+func (adderContainer AdderContainer) AddImage(normalTexts []string) int {
 	imgPath := normalTexts[0]
 	imgHint := normalTexts[1]
 
@@ -262,4 +262,11 @@ func (adderContainer AdderContainer) AddCodeBlock(texts []string) int {
 
 	return 101
 
+}
+
+
+func (adderContainer AdderContainer) AddPlain(texts []string) int {
+	adderContainer.Run.AddText(texts[0])
+
+	return 101
 }

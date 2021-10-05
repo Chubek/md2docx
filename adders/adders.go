@@ -13,8 +13,14 @@ import (
 	"github.com/unidoc/unioffice/schema/soo/wml"
 )
 
-func AddBlockQuote(doc *document.Document, para document.Paragraph) int {
-	style := doc.Styles
+type AdderContainer struct {
+	Doc  *document.Document
+	Para document.Paragraph
+	Run  document.Run
+}
+
+func (adderContainer AdderContainer) AddBlockQuote(normalTexts []string) int {
+	style := adderContainer.Doc.Styles
 	customStyle := style.AddStyle("CustomStyle1", wml.ST_StyleTypeParagraph, false)
 	customStyle.SetName("BQ Style")
 	customStyle.ParagraphProperties().SetSpacing(measurement.Inch*1, measurement.Inch*1)
@@ -22,65 +28,69 @@ func AddBlockQuote(doc *document.Document, para document.Paragraph) int {
 	customStyle.ParagraphProperties().SetFirstLineIndent(8)
 	customStyle.ParagraphProperties().SetLineSpacing(4*measurement.Point, wml.ST_LineSpacingRuleAuto)
 
-	para.SetStyle("BQ Style")
+	adderContainer.Para.SetStyle("BQ Style")
 
-	run := para.AddRun()
-	run.Properties().SetFontFamily("Trebuchet MS")
+	Run := adderContainer.Para.AddRun()
+	Run.Properties().SetFontFamily("Trebuchet MS")
 
-	return 101
-}
-
-func AddHorizLine(texts []string, para document.Paragraph) int {
-	run := para.AddRun()
-	run.AddText(texts[0])
+	for _, txt := range normalTexts {
+		Run.AddText(txt)
+	}
 
 	return 101
 }
 
-func AddTable(texts [][]string, doc *document.Document) int {
-	table := doc.AddTable()
+func (adderContainer AdderContainer) AddHorizLine(normalTexts []string) int {
+	Run := adderContainer.Para.AddRun()
+	Run.AddText(normalTexts[0])
+
+	return 101
+}
+
+func (adderContainer AdderContainer) AddTable(tableTexts [][]string) int {
+	table := adderContainer.Doc.AddTable()
 	table.Properties().SetWidthPercent(100)
 	borders := table.Properties().Borders()
 	borders.SetAll(wml.ST_BorderSingle, color.Auto, 2*measurement.Point)
 
-	for _, rowText := range texts {
+	for _, rowText := range tableTexts {
 		row := table.AddRow()
 
 		for _, cellText := range rowText {
 			cell := row.AddCell()
-			paraCell := cell.AddParagraph()
-			paraCell.AddRun().AddText(cellText)
+			ParaCell := cell.AddParagraph()
+			ParaCell.AddRun().AddText(cellText)
 		}
 	}
 
 	return 101
 }
 
-func AddList(texts []string, para document.Paragraph) int {
-	for _, txt := range texts {
-		run := para.AddRun()
-		run.AddText(txt)
+func (adderContainer AdderContainer) AddList(normalTexts []string) int {
+	for _, txt := range normalTexts {
+		Run := adderContainer.Para.AddRun()
+		Run.AddText(txt)
 	}
 
 	return 101
 
 }
 
-func ParseImage(text []string, doc *document.Document, para document.Paragraph) int {
-	imgPath := text[0]
-	imgHint := text[1]
+func (adderContainer AdderContainer) ParseImage(normalTexts []string) int {
+	imgPath := normalTexts[0]
+	imgHint := normalTexts[1]
 
 	img, err := common.ImageFromFile(imgPath)
 	if err != nil {
 		log.Fatalf("unable to create image: %s", err)
 	}
 
-	imgRef, err := doc.AddImage(img)
+	imgRef, err := adderContainer.Doc.AddImage(img)
 	if err != nil {
-		log.Fatalf("unable to Parse image to document: %s", err)
+		log.Fatalf("unable to Parse image to Document: %s", err)
 	}
 
-	anchored, err := para.AddRun().AddDrawingAnchored(imgRef)
+	anchored, err := adderContainer.Para.AddRun().AddDrawingAnchored(imgRef)
 	if err != nil {
 		log.Fatalf("unable to Parse anchored image: %s", err)
 	}
@@ -95,68 +105,68 @@ func ParseImage(text []string, doc *document.Document, para document.Paragraph) 
 
 }
 
-func AddEmailUrl(text []string, doc *document.Document, para document.Paragraph) int {
-	emailOrUrl := text[0]
-	protocol := text[1]
-	explainText := text[2]
+func (adderContainer AdderContainer) AddEmailUrl(normalTexts []string) int {
+	emailOrUrl := normalTexts[0]
+	protocol := normalTexts[1]
+	explainText := normalTexts[2]
 
-	hl := para.AddHyperLink()
+	hl := adderContainer.Para.AddHyperLink()
 	hl.SetTarget(fmt.Sprintf("%s:%s", protocol, emailOrUrl))
-	run := hl.AddRun()
+	Run := hl.AddRun()
 	style := "Hyper Link"
-	run.Properties().SetStyle(style)
-	run.AddText(fmt.Sprintf("%s%s", emailOrUrl, explainText))
+	Run.Properties().SetStyle(style)
+	Run.AddText(fmt.Sprintf("%s%s", emailOrUrl, explainText))
 	hl.SetToolTip(explainText)
 
 	return 101
 }
 
-func AddLinkImage(text []string, doc *document.Document, para document.Paragraph) int {
-	imgPath := text[1]
-	toolTip := text[2]
-	linkUrl := text[3]
+func (adderContainer AdderContainer) AddLinkImage(normalTexts []string) int {
+	imgPath := normalTexts[1]
+	toolTip := normalTexts[2]
+	linkUrl := normalTexts[3]
 
 	img, err := common.ImageFromFile(imgPath)
 	if err != nil {
 		log.Fatalf("unable to create image: %s", err)
 	}
 
-	imgRef, err := doc.AddImage(img)
+	imgRef, err := adderContainer.Doc.AddImage(img)
 	if err != nil {
-		log.Fatalf("unable to Parse image to document: %s", err)
+		log.Fatalf("unable to Parse image to Document: %s", err)
 	}
 
-	hl := para.AddHyperLink()
+	hl := adderContainer.Para.AddHyperLink()
 	hl.SetTarget(linkUrl)
-	run := hl.AddRun()
-	run.Properties().SetStyle("Hyperlink")
-	run.AddDrawingAnchored(imgRef)
+	Run := hl.AddRun()
+	Run.Properties().SetStyle("Hyperlink")
+	Run.AddDrawingAnchored(imgRef)
 	hl.SetToolTip(toolTip)
 
 	return 101
 }
 
-func AddLink(text []string, doc *document.Document, para document.Paragraph) int {
+func (adderContainer AdderContainer) AddLink(text []string) int {
 	if text[0] == "ImageLink" {
-		return AddLinkImage(text, doc, para)
+		return adderContainer.AddLinkImage(text)
 	}
 
 	linkText := text[1]
 	hrefTooltip := text[2]
 	linkUrl := text[3]
 
-	hl := para.AddHyperLink()
+	hl := adderContainer.Para.AddHyperLink()
 	hl.SetTarget(linkUrl)
-	run := hl.AddRun()
-	run.Properties().SetStyle("Hyperlink")
-	run.AddText(linkText)
+	Run := hl.AddRun()
+	Run.Properties().SetStyle("Hyperlink")
+	Run.AddText(linkText)
 	hl.SetToolTip(hrefTooltip)
 
 	return 101
 
 }
 
-func AddHeader(texts []string, para document.Paragraph) int {
+func (adderContainer AdderContainer) AddHeader(texts []string) int {
 	level := texts[0]
 	style := fmt.Sprintf("Heading%s", level)
 
@@ -171,70 +181,70 @@ func AddHeader(texts []string, para document.Paragraph) int {
 		hrefTooltip := pattUnnTxt.FindString(txtSplit[1])
 		linkUrl := strings.Trim(pattUnnTxt.ReplaceAllString(txtSplit[1][:len(txtSplit[1])-1], ""), " ")
 
-		hl := para.AddHyperLink()
-		para.SetStyle(style)
+		hl := adderContainer.Para.AddHyperLink()
+		adderContainer.Para.SetStyle(style)
 		hl.SetTarget(linkUrl)
-		run := hl.AddRun()
-		run.Properties().SetStyle("Hyperlink")
-		run.AddText(linkText)
+		Run := hl.AddRun()
+		Run.Properties().SetStyle("Hyperlink")
+		Run.AddText(linkText)
 		hl.SetToolTip(hrefTooltip)
 
 		return 101
 	}
 
-	para.SetStyle(style)
-	run := para.AddRun()
-	run.AddText(text)
+	adderContainer.Para.SetStyle(style)
+	Run := adderContainer.Para.AddRun()
+	Run.AddText(text)
 
 	return 101
 }
 
-func AddInlineCode(text []string, run document.Run) int {
-	run.Properties().SetFontFamily("Courier New")
-	run.Properties().SetColor(color.BlueViolet)
+func (adderContainer AdderContainer) AddInlineCode(text []string) int {
+	adderContainer.Run.Properties().SetFontFamily("Courier New")
+	adderContainer.Run.Properties().SetColor(color.BlueViolet)
 
 	for _, txt := range text {
-		run.AddText(txt)
+		adderContainer.Run.AddText(txt)
 	}
 
 	return 101
 }
 
-func AddBold(text []string, run document.Run) int {
-	run.Properties().SetBold(true)
+func (adderContainer AdderContainer) AddBold(text []string) int {
+	adderContainer.Run.Properties().SetBold(true)
 
 	for _, txt := range text {
-		run.AddText(txt)
+		adderContainer.Run.AddText(txt)
 	}
 
 	return 101
 }
 
-func AddItalic(text []string, run document.Run) int {
-	run.Properties().SetItalic(true)
+func (adderContainer AdderContainer) AddItalic(text []string) int {
+	adderContainer.Run.Properties().SetItalic(true)
 
 	for _, txt := range text {
-		run.AddText(txt)
+		adderContainer.Run.AddText(txt)
 	}
 
 	return 101
 }
 
-func AddBoldItalic(text []string, run document.Run) int {
-	run.Properties().SetBold(true)
-	run.Properties().SetItalic(true)
+func (adderContainer AdderContainer) AddBoldItalic(text []string) int {
+	adderContainer.Run.Properties().SetBold(true)
+	adderContainer.Run.Properties().SetItalic(true)
 
 	for _, txt := range text {
-		run.AddText(txt)
+		adderContainer.Run.AddText(txt)
 	}
 
 	return 101
 }
 
-func AddCodeBlock(texts []string, doc *document.Document, para document.Paragraph) int {
+func (adderContainer AdderContainer) AddCodeBlock(texts []string) int {
 	text := texts[0]
 
-	style := doc.Styles
+	style := adderContainer.Doc.Styles
 	customStyle := style.AddStyle("CustomStyle1", wml.ST_StyleTypeParagraph, false)
 	customStyle.SetName("Listing Style")
 	customStyle.ParagraphProperties().SetSpacing(measurement.Inch*1, measurement.Inch*1)
@@ -242,13 +252,13 @@ func AddCodeBlock(texts []string, doc *document.Document, para document.Paragrap
 	customStyle.ParagraphProperties().SetFirstLineIndent(0)
 	customStyle.ParagraphProperties().SetLineSpacing(2*measurement.Point, wml.ST_LineSpacingRuleAuto)
 
-	run := para.AddRun()
+	Run := adderContainer.Para.AddRun()
 
-	run.Properties().SetStyle("Listing Style")
-	run.Properties().SetFontFamily("Courier New")
-	run.Properties().SetKerning(2)
-	run.Properties().SetColor(color.Blue)
-	run.AddText(text)
+	Run.Properties().SetStyle("Listing Style")
+	Run.Properties().SetFontFamily("Courier New")
+	Run.Properties().SetKerning(2)
+	Run.Properties().SetColor(color.Blue)
+	Run.AddText(text)
 
 	return 101
 

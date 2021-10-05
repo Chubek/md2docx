@@ -57,3 +57,8 @@ func Reverse(s string) string {
 
 	return string(rns)
 }
+
+func IsEmpty(arr []string) bool {
+	return len(arr) > 0
+}
+

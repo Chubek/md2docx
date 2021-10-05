@@ -12,7 +12,9 @@ import (
 	"github.com/dlclark/regexp2"
 )
 
-func ParseBlockQuote(text string, _ int) []string {
+
+
+func ParseBlockQuote(text string) []string {
 	ret := make([]string, 1)
 
 	if match.MatchAll(text) == 14 {
@@ -22,7 +24,7 @@ func ParseBlockQuote(text string, _ int) []string {
 	return ret
 }
 
-func ParseHorizontalLine(text string, _ int) []string {
+func ParseHorizontalLine(text string) []string {
 	ret := make([]string, 1)
 
 	if match.MatchAll(text) == 15 {
@@ -349,3 +351,4 @@ func ParseBoldItalic(text string) []string {
 
 	return []string{}
 }
+

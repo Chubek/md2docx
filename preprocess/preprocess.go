@@ -33,7 +33,7 @@ func splitPara(input string) []string {
 	return patt.Split(input, -1)
 }
 
-func ReadAndSplit(mdpath string) [][]string {
+func ReadAndSplit(mdpath string) ([][]string, int, int) {
 	file, err := os.Open(mdpath)
 	if err != nil {
 		log.Fatal(err)
@@ -45,6 +45,8 @@ func ReadAndSplit(mdpath string) [][]string {
 		log.Fatal(err)
 	}
 	var finalRet [][]string
+	var lenPara int
+	var lenSent int
 
 	splitPar := splitPara(string(b))
 
@@ -61,10 +63,13 @@ func ReadAndSplit(mdpath string) [][]string {
 			sent = strings.Trim(sent, "\n")
 
 			innerSents = append(innerSents, sent)
+
+			lenSent += 1
 		}
 
 		finalRet = append(finalRet, innerSents)
+		lenPara += 1
 	}
 
-	return finalRet
+	return finalRet, lenPara, lenSent
 }
